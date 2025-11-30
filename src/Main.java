@@ -18,14 +18,15 @@ public class Main {
 
     private <E> void printList(List<E> list) {
         // TODO Print out all the elements in the supplied list:
-        employees.forEach(System.out::println);
+        list.forEach(System.out::println);
     }
 
     public void getEmployeesOver50k() {
         // TODO Print a list of all employees that earn $50,000 or more
         List<Employee> employees = this.employees.stream()
-                .filter(employee -> employee.getSalary() >= 50_000)
+                .filter(employee -> employee.getSalary() >= 50_000.00)
                 .toList();
+
         printList(employees);
 
     }
@@ -34,8 +35,9 @@ public class Main {
         // TODO Print a list of the names (not the Employee instances) of all employees who were hired on or after Jan. 1, 2012:
         // HINT: look it up for "LocalDate.of"
         List<String> employees = this.employees.stream()
-                .filter(employee -> employee.getHireDate().isBefore(LocalDate.of(2012,1,1)))
-                .map(Employee::getName).toList();
+                .filter(employee -> employee.getHireDate().isAfter(LocalDate.of(2011,12,31)))
+                .map(Employee::getName)
+                .toList();
 
          printList(employees);
 
@@ -43,20 +45,37 @@ public class Main {
 
     public void getMaxSalary() {
         // TODO Print the maximum salary of all employees...
-        double max = this.employees.stream().max(Comparator.comparing(Employee::getSalary)).get().getSalary();
+        double max = this.employees.stream()
+                .max(Comparator.comparing(Employee::getSalary))
+                .map(Employee::getSalary)
+                .orElse(0.0);
+
         System.out.println("Max:" + max);
     }
 
     public void getMinSalary() {
         // TODO Print the minimum salary of all employees...
-        double min = 0;
+        double min = this.employees.stream()
+                .min(Comparator.comparing(Employee::getSalary))
+                .map(Employee::getSalary)
+                .orElse(0.0);
+
         System.out.println("Min:" + min);
     }
 
     public void getAverageSalaries() {
         // TODO print the average salary of all Female and Male employees:
-        double averageFemale = 0;
-        double averageMale = 0;
+        double averageFemale = this.employees.stream()
+                .filter(e -> e.getGender().equalsIgnoreCase("Female"))
+                .mapToDouble(Employee::getSalary)
+                .average()
+                .orElse(0);
+
+        double averageMale = this.employees.stream()
+                .filter(e -> e.getGender().equals("Male"))
+                .mapToDouble(Employee::getSalary)
+                .average()
+                .orElse(0);
 
         System.out.println("Averages: Female:" + averageFemale);
         System.out.println("Averages: Male:" + averageMale);
@@ -64,11 +83,36 @@ public class Main {
 
     public void getMaximumPaidEmployee() {
         // TODO use the reduce() operation to find the Employee instance of the employees list with the highest salary:
-        Employee highest = null;
-        // System.out.println(highest);
+        Employee highest = this.employees.stream()
+                .reduce((e1, e2) -> e1.getSalary() >= e2.getSalary() ? e1 : e2)
+                .orElse(null);
+
+         System.out.println(highest);
     }
 
     public static void main(String[] args) {
+
+        Main main = new Main();
+        System.out.println("Print List of Employees:");
+        main.printList(main.employees);
+
+        System.out.println("\nEmployees Over 50k:");
+        main.getEmployeesOver50k();
+
+        System.out.println("\nEmployees Hired after 2012:");
+        main.getEmployeeNamesHiredAfter2012();
+
+        System.out.println("\nMax Salary:");
+        main.getMaxSalary();
+
+        System.out.println("\nMin Salary:");
+        main.getMinSalary();
+
+        System.out.println("\nAverage Salaries:");
+        main.getAverageSalaries();
+
+        System.out.println("\nMaximum Paid Employee:");
+        main.getMaximumPaidEmployee();
 
     }
 }

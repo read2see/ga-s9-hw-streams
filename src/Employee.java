@@ -20,6 +20,10 @@ public class Employee {
         return id;
     }
 
+    public String getGender() {
+        return gender;
+    }
+
     public String getName() {
         return name;
     }
